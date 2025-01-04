@@ -1,30 +1,33 @@
-   name: Build Solution
+name: Building
 
-   on:
-     workflow_dispatch: # Запуск вручную через интерфейс GitHub Actions
+on: [push, workflow_dispatch]
 
-   jobs:
-     build:
-       runs-on: windows-latest
+env:
+  SOLUTION_FILE_PATH: .
+  
+  BUILD_CONFIGURATION: Release
 
-       steps:
-       - name: Checkout repository
-         uses: actions/checkout@v3
+jobs:
+  build:
+    runs-on: windows-latest
 
-       - name: Set up .NET
-         uses: actions/setup-dotnet@v3
-         with:
-           dotnet-version: '7.0' # Укажите версию .NET
+    steps:
+    - uses: actions/checkout@v4
 
-       - name: Restore NuGet packages
-         run: dotnet restore ./Legacy CTFAK UI.sln
+    - name: Setup
+      uses: microsoft/setup-msbuild@v2
 
-       - name: Build Solution
-         run: dotnet build ./Legacy CTFAK UI.sln --configuration Release
+    - name: Restore Nuget
+      working-directory: ${{env.GITHUB_WORKSPACE}}
+      run: nuget restore ${{env.SOLUTION_FILE_PATH}}
 
-       - name: Upload artifacts
-         uses: actions/upload-artifact@v3
-         with:
-           name: BuildOutput
-           path: ./build
+    - name: Compile
+      working-directory: ${{env.GITHUB_WORKSPACE}}
+      run: msbuild /m /p:Configuration=${{env.BUILD_CONFIGURATION}} ${{env.SOLUTION_FILE_PATH}}
+         
+    - name: Upload
+      uses: actions/upload-artifact@v4
+      with:
+       name: Nebula
+       path: D:\a\NebulaFD\NebulaFD\build
    
