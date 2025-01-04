@@ -1,0 +1,30 @@
+   name: Build Solution
+
+   on:
+     workflow_dispatch: # Запуск вручную через интерфейс GitHub Actions
+
+   jobs:
+     build:
+       runs-on: windows-latest
+
+       steps:
+       - name: Checkout repository
+         uses: actions/checkout@v3
+
+       - name: Set up .NET
+         uses: actions/setup-dotnet@v3
+         with:
+           dotnet-version: '7.0' # Укажите версию .NET
+
+       - name: Restore NuGet packages
+         run: dotnet restore ./Legacy CTFAK UI.sln
+
+       - name: Build Solution
+         run: dotnet build ./Legacy CTFAK UI.sln --configuration Release
+
+       - name: Upload artifacts
+         uses: actions/upload-artifact@v3
+         with:
+           name: BuildOutput
+           path: ./build
+   
